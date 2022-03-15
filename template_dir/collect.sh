@@ -29,7 +29,7 @@ fi
 set -eu
 source loop.sh
 
-timers=("step" "tree" "balance" "density" "force" "extf")
+timers=("step" "tree" "balance" "density" "density local" "density remote" "force" "force local" "force remote" "extf")
 for timer in "${timers[@]}"; do
 
 function get_data(){
@@ -41,34 +41,41 @@ function get_data(){
   local d="run-${nodes}x${ntasks_per_node}x${cpus_pertask}"
   local f="$d/polar01.log"
 
-  local ttemp tsec
+  local line ttemp timing timer_a timber_b traw
 
+  if [[ $timer = *" "* ]]; then
+    timer_a=$(echo $timer | cut -d ' ' -f 1)
+    timer_b=$(echo $timer | cut -d ' ' -f 2)
+    line=$(sed -n "/─${timer_a}/,/─${timer_b}/p" $f | tail -1)
+  else
+    line=$(grep "─${timer}" $f)
+  fi
+
+  line=$(echo $line | grep '%' | grep ':' | tr -s ' ' | cut -d ':' -f 2)
+
+  timing="NaN"
   if [[ $get_percentage == 1 ]]; then
-    local traw=$(grep "$timer" $f | grep '%' | grep ':' | tr -s ' ' | cut -d ':' -f 2 | cut -d ' ' -f 5)
+    traw=$(echo $line | cut -d ' ' -f 4)
     if [[ ! -z $traw ]]; then
-      tsec=$(echo $traw | cut -d '%' -f 1)
-    else
-      tsec="NaN"
+      timing=$(echo $traw | cut -d '%' -f 1)
     fi
   else
     # Convert minutes to seconds
-    local traw=$(grep "$timer" $f | grep '%' | grep ':' | tr -s ' ' | cut -d ':' -f 2 | cut -d ' ' -f 2)
+    traw=$(echo $line | cut -d ' ' -f 1)
     if [[ ! -z $traw ]]; then
       if [[ $traw == *min ]]; then
         ttemp=$(echo $traw | cut -d 'm' -f 1)
-        tsec=$(echo "print ${ttemp}*60" | perl)
+        timing=$(echo "print ${ttemp}*60" | perl)
       elif [[ $traw == *s ]]; then
-        tsec=$(echo $traw | cut -d 's' -f 1)
+        timing=$(echo $traw | cut -d 's' -f 1)
       fi
-    else
-      tsec="NaN"
     fi
   fi
 
   # Print result
-  echo $nodes $ntasks_per_node $cpus_per_task $tsec
+  echo $nodes $ntasks_per_node $cpus_per_task $timing
 }
 
-  loop get_data | column -t | tac > "timings_${timer}${ext}.txt"
+  loop get_data | column -t | tac > "timings_$(echo ${timer} | tr ' ' '_')${ext}.txt"
 
 done
