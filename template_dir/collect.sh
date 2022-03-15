@@ -48,7 +48,7 @@ function get_data(){
     timer_b=$(echo $timer | cut -d ' ' -f 2)
     line=$(sed -n "/─${timer_a}/,/─${timer_b}/p" $f | tail -1)
   else
-    line=$(grep "─${timer}" $f)
+    line=$(sed -n "/─${timer}/p" $f)
   fi
 
   line=$(echo $line | grep '%' | grep ':' | tr -s ' ' | cut -d ':' -f 2)
