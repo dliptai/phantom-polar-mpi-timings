@@ -36,6 +36,8 @@ plt.xscale('log', base=2)
 plt.xticks(ratio,ratio)               # Full number tick labels
 if '%' in args.file:
   plt.ylabel('Time (%)')
+elif args.file.endswith('bal.txt'):
+  plt.ylabel('MPI work balance (%)')
 else:
   plt.ylabel('Time (s)')
 plt.xlabel('MPI to OMP ratio')
