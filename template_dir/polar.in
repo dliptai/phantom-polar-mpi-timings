@@ -8,7 +8,7 @@
 
 # options controlling run time and input/output
                 tmax =  174.846685    ! end time
-               dtmax =       2.500    ! time between dumps
+               dtmax =        10.0    ! time between dumps
                 nmax =          -1    ! maximum number of timesteps (0=just get derivs and stop)
                 nout =          -1    ! write dumpfile every n dtmax (-ve=ignore)
            nmaxdumps =           1    ! stop after n full dumps (-ve=ignore)
