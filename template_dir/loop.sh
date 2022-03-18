@@ -24,7 +24,7 @@ function ispowerof2() {
 }
 
 function loop() {
-  local max_nodes=4
+  local max_nodes=16
   local max_cpus_per_node=32
   local func=$1
 
