@@ -1,5 +1,5 @@
 function ispowerof2() {
-  local number=$1
+  local number="$1"
   local result remainder divisible
   while true; do
     if ((number==2)); then
@@ -16,10 +16,10 @@ function ispowerof2() {
       divisible=true
       break
     fi
-    number=$result
+    number="$result"
   done
 
-  echo $divisible
+  echo "$divisible"
 
 }
 
@@ -28,17 +28,17 @@ function loop() {
   local max_cpus_per_node=32
   local func=$1
 
-  for nodes in $(seq $max_nodes); do
-    for ntasks_per_node in $(seq $max_cpus_per_node); do
-      for cpus_per_task in $(seq $max_cpus_per_node); do
+  for nodes in $(seq "$max_nodes"); do
+    for ntasks_per_node in $(seq "$max_cpus_per_node"); do
+      for cpus_per_task in $(seq "$max_cpus_per_node"); do
         N=$((ntasks_per_node*cpus_per_task))
         ntasks=$((nodes*ntasks_per_node))
         if ((N!=max_cpus_per_node)); then
           continue
-        elif ((ntasks>1)) && [ $(ispowerof2 $ntasks) != true ]; then
+        elif ((ntasks>1)) && [ $(ispowerof2 "$ntasks") != true ]; then
           continue
         else
-          $func $nodes $ntasks_per_node $cpus_per_task
+          "$func" "$nodes" "$ntasks_per_node" "$cpus_per_task"
         fi
       done
     done

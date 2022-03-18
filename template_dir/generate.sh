@@ -5,19 +5,19 @@ weak_scaling=0
 setup="polar"
 
 while [[ "$1" == --* ]]; do
-  case $1 in
+  case "$1" in
     --weak)
       weak_scaling=1;
       ;;
 
    --setup)
       shift
-      setup=$1
+      setup="$1"
       break;
       ;;
 
     *)
-      badflag=$1
+      badflag="$1"
       ;;
   esac
   shift
@@ -46,41 +46,41 @@ else
 fi
 
 PHANTOM_DIR=/home/dliptai/repos/phantom
-$PHANTOM_DIR/scripts/writemake.sh $SETUP > Makefile
+"$PHANTOM_DIR/scripts/writemake.sh" "$SETUP" > Makefile
 make SYSTEM=gfortran MPI=yes MAXP=16000000 phantom phantomsetup
 
 rm -f ./job.names
 
 function generate_run() {
-  local nodes=$1
-  local ntasks_per_node=$2
-  local cpus_pertask=$3
+  local nodes="$1"
+  local ntasks_per_node="$2"
+  local cpus_pertask="$3"
   local ntasks=$((ntasks_per_node*nodes))
   local id="${nodes}x${ntasks_per_node}x${cpus_pertask}"
   local jobname="${id}${TAG:-}${SBATCH_PARTITION:-}"
 
-  echo $jobname >> job.names
+  echo "$jobname" >> job.names
 
   local d="run-${id}"
   local qscript="run-${id}.q"
 
-  mkdir -p $d
-  cp phantom $d/.
+  mkdir -p "$d"
+  cp phantom "$d/."
 
-  if [[ $weak_scaling == 1 ]]; then
+  if [[ "$weak_scaling" == 1 ]]; then
     source ./setups.sh
-    cp phantomsetup $d/.
-    cd $d
-    write_setup ${setup} $nodes > ${setup}.setup || ( echo "Could not write .setup for ${setup}"; rm -f "${setup}.setup"; exit 1 )
+    cp phantomsetup "$d/."
+    cd "$d"
+    write_setup "${setup}" "$nodes" > "${setup}.setup" || ( echo "Could not write .setup for ${setup}"; rm -f "${setup}.setup"; exit 1 )
     echo "Running phantomsetup for $d"
-    ./phantomsetup ${setup} > /dev/null
+    ./phantomsetup "${setup}" > /dev/null
     rm "${setup}.in"
     cd - > /dev/null
-    cp "${INFILE}" $d/.
+    cp "${INFILE}" "$d/."
     sed -i "s/${STARTDUMP}/${setup}_00000\.tmp/g" "$d/${INFILE}"
   else
-    cp "${STARTDUMP}" $d/.
-    cp "${INFILE}" $d/.
+    cp "${STARTDUMP}" "$d/."
+    cp "${INFILE}" "$d/."
   fi
 
   # WRITE qscript
@@ -114,7 +114,7 @@ EOF
 
   # SUBMIT job
   echo "Submitting $d"
-  cd $d; sbatch $qscript; cd - > /dev/null
+  cd "$d"; sbatch "$qscript"; cd - > /dev/null
 
 }
 

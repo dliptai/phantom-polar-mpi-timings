@@ -1,9 +1,9 @@
 function write_setup() {
-  local setup=$1
-  local nodes=$2
+  local setup="$1"
+  local nodes="$2"
 
   if [ "$setup" == "polar" ]; then
-    write_polar_setup $nodes
+    write_polar_setup "$nodes"
   else
     # echo "No setup function for $setup"
     return 1
@@ -11,7 +11,7 @@ function write_setup() {
 }
 
 function write_polar_setup() {
-  local nodes=$1
+  local nodes="$1"
   local np=$((nodes*1000000))
   cat << EOF
 # input file for disc setup routine
